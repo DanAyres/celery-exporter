@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  application:
+    build: .
+    image: my_celery_application
+    command:
+      - "--broker-url=redis://redis:6379"
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
+    volumes:
+      - ./redis-conf:/usr/local/etc/redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+#    command:
+#      - "/usr/local/etc/redis/redis.conf"
+
+
+# To get the IP address of the container: docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' celery-exporter_application_1
+# curl http://172.19.0.3:9808/metrics
